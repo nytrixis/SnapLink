@@ -1,14 +1,3 @@
-/**
-  Functionality needed:
-  - Setup UI
-  - Add URL
-  - Remove URL
-  - Clear all URLs
-  - Count URLs
-  - Update UI
-  - Listen to changes in sync storage
-**/
-
 const MAX_BUTTON_ITEMS = 999;
 
 let snapLink = (function(storageObject) {
@@ -24,7 +13,7 @@ let snapLink = (function(storageObject) {
 
   let getCountsHandler = function(counts_callback) {
     return function() {
-      storage.get(function(items) {
+      storage.get(null, function(items) {
         let counts = 0;
         for (let key in items) {
           if ((typeof key === 'string') && (key !== 'count')) {
@@ -36,11 +25,10 @@ let snapLink = (function(storageObject) {
     };
   };
 
-
   let createNewURLItemFromTab = function(tab) {
-      let urlData = {"title": tab.title, 'timestamp': new Date().getTime()};
-      let urlItem = {'url': tab.url, 'data': urlData};
-      return urlItem;
+    let urlData = {"title": tab.title, 'timestamp': new Date().getTime()};
+    let urlItem = {'url': tab.url, 'data': urlData};
+    return urlItem;
   };
 
   let isValidSyncItem = function(syncItem) {
@@ -48,7 +36,7 @@ let snapLink = (function(storageObject) {
       return false;
     }
     for (let key in syncItem) {
-      if(typeof syncItem[key] !== "object"){
+      if (typeof syncItem[key] !== "object") {
         return false;
       }
       if (!('title' in syncItem[key])) {
@@ -59,16 +47,14 @@ let snapLink = (function(storageObject) {
   };
 
   let getValidSyncItems = function(callback) {
-    storage.get(function(items) {
+    storage.get(null, function(items) {
       links.innerHTML = '';
-      let syncItems = new Array();
+      let syncItems = [];
 
       for (let key in items) {
-        let syncItem = {}; 
+        let syncItem = {};
         syncItem[key] = items[key];
-        // console.log(key, syncItem);
         if (isValidSyncItem(syncItem)) {
-          // console.log(key, items[key]);
           syncItem = items[key];
           syncItem.key = key;
           syncItems.push(syncItem);
@@ -77,11 +63,9 @@ let snapLink = (function(storageObject) {
 
       callback(syncItems);
     });
-
   };
 
   return {
-    // storage: storage,
     getCountsHandler: getCountsHandler,
     getValidSyncItems: getValidSyncItems,
 
@@ -93,13 +77,9 @@ let snapLink = (function(storageObject) {
 
     addURLFromTabHandler: function(success_callback) {
       return function() {
-        chrome.tabs.query({"active": true, 'currentWindow': true}, function(
-          tabs) {
-
-          if (!tabs.length) 
-            {return;}
+        chrome.tabs.query({"active": true, 'currentWindow': true}, function(tabs) {
+          if (!tabs.length) { return; }
           let tab = tabs[0];
-
           let urlItem = createNewURLItemFromTab(tab);
           success_callback(urlItem);
         });
@@ -123,7 +103,7 @@ let snapLink = (function(storageObject) {
     removeURLHandler: function(success_callback, failed_callback) {
       return function(url) {
         storage.get(url, function(urlItemFound) {
-          if (urlItemFound) {
+          if (urlItemFound[url]) {
             storage.remove(url, success_callback);
           } else {
             failed_callback(url);
@@ -141,5 +121,9 @@ let snapLink = (function(storageObject) {
       };
     },
   };
-  
+
 });
+
+// Example of usage with chrome.storage
+let storage = chrome.storage.local; // or chrome.storage.sync
+let snapLinkInstance = snapLink(storage);
