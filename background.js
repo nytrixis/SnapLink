@@ -1,3 +1,5 @@
+importScripts('core.js');
+
 const snapLinkObject = snapLink(chrome.storage.sync);
 
 const snapLinkApp = {
@@ -24,7 +26,7 @@ snapLinkApp.removeURL = snapLinkObject.removeURLHandler(snapLinkApp.remove_succe
 snapLinkApp.clearAll = snapLinkObject.clearAllHandler(snapLinkApp.clear_all_success);
 snapLinkApp.addURLFromTab = snapLinkObject.addURLFromTabHandler(snapLinkApp.addURL);
 
-chrome.commands.onCommand.addListener(function (command) {
+chrome.commands.onCommand.addListener((command) => {
   console.log('Command:', command);
   if (command === "add-url") {
     console.log("Adding URL");
