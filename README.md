@@ -1,6 +1,6 @@
 # SnapLink Chrome Extension
 
-**Status: Under Testing (Try BETA Version)**
+**Status: Undergoing Development**
 
 ## Overview
 
